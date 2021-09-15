@@ -1,0 +1,20 @@
+[
+    {
+        "customer-id": 1,
+        "account-type": "Trading",
+        "branch-address": "Mumbai",
+        "created-date": "2021-03-19"
+    },
+    {
+        "customer-id": 1,
+        "account-type": "Saving",
+        "branch-address": "Indore",
+        "created-date": "2021-07-20"
+    },
+    {
+        "customer-id": 1,
+        "account-type": "Current",
+        "branch-address": "Hyderabad",
+        "created-date": "2021-07-21"
+    }
+]
