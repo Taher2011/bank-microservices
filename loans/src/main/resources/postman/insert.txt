@@ -1,0 +1,29 @@
+[
+    {
+        "customer-id": 1,
+        "start-date": "2021-07-24",
+        "loan-type": "Home",
+        "total-loan": 2000000,
+        "amount-paid": 50000,
+        "outstanding-amount": 1500000,
+        "created-date": "2021-07-24"
+    },
+    {
+        "customer-id": 1,
+        "start-date": "2021-07-25",
+        "loan-type": "Vehicle",
+        "total-loan": 60000,
+        "amount-paid": 10000,
+        "outstanding-amount": 30000,
+        "created-date": "2021-07-25"
+    },
+    {
+        "customer-id": 1,
+        "start-date": "2021-07-25",
+        "loan-type": "Education",
+        "total-loan": 250000,
+        "amount-paid": 10000,
+        "outstanding-amount": 240000,
+        "created-date": "2021-07-25"
+    }
+]
