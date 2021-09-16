@@ -1,0 +1,92 @@
+#creating mysql docker container from mysql image
+docker run --name mysql-docker-container-account -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=udemyaccount -e MYSQL_USER=sa -e MYSQL_PASSWORD=password -d mysql:latest
+docker run --name mysql-docker-container-loan -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=udemyloan -e MYSQL_USER=sa -e MYSQL_PASSWORD=password -d mysql:latest
+docker run --name mysql-docker-container-card -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=udemycard -e MYSQL_USER=sa -e MYSQL_PASSWORD=password -d mysql:latest
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Dockerfile
+FROM openjdk:latest
+COPY target/accounts-0.0.1-SNAPSHOT.jar accounts-0.0.1-SNAPSHOT.jar
+EXPOSE 5050
+ENTRYPOINT ["java","-jar","accounts-0.0.1-SNAPSHOT.jar"]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#creating docker image of springboot app with above config
+docker build . -t account-image
+docker build . -t loan-image
+docker build . -t card-image
+docker build . -t configserver-image
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#to execute docker compose file
+docker compose up
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#to create and run container
+docker run -p 5051:5050 --name account-container-1 --link mysql-docker-container-account:mysql -d account-image
+docker run -p 5052:5050 --name account-container-2 --link mysql-docker-container-account:mysql -d account-image
+
+docker run -p 6061:6060 --name loan-container-1 --link mysql-docker-container-loan:mysql -d loan-image
+docker run -p 6062:6060 --name loan-container-2 --link mysql-docker-container-loan:mysql -d loan-image
+
+docker run -p 7071:7070 --name card-container-1 --link mysql-docker-container-card:mysql -d card-image
+docker run -p 7072:7070 --name card-container-2 --link mysql-docker-container-card:mysql -d card-image
+#-d is detached mode that logs will not print 
+
+docker run -p 8071:8071 --name configserver-container-1 -d configserver-image
+
+#to create second container of account microservice and run container
+docker run -p 5051:5050 --name account-container-1 --link mysql-docker-container:mysql -d account-image
+
+#to run zipkin server
+docker run -p 9411:9411 -d openzipkin/zipkin
+
+#to run rabbitmq server
+docker run -p 5672:5672 -p 15672:15672 -d rabbitmq:3-management
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#to stop docker container
+docker stop users-mysql
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#push image to docker hub
+docker tag account-image:latest taher2011/dockerhub:accountimagepush
+docker push taher2011/dockerhub:accountimagepush
+
+docker tag loan-image:latest taher2011/dockerhub:loanimagepush
+docker push taher2011/dockerhub:loanimagepush
+
+docker tag card-image:latest taher2011/dockerhub:cardimagepush
+docker push taher2011/dockerhub:cardimagepush
+
+docker tag configserver-image:latest taher2011/dockerhub:configserverimagepush
+docker push taher2011/dockerhub:configserverimagepush
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#application.properties for local PC
+server.port=5050
+
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/udemyaccount
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.dialect.storage_engine=innodb
+
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+#application.properties for mysql container docker
+server.port=5050
+
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.datasource.url=jdbc:mysql://mysql-docker-container-account:3306/udemyaccount
+
+spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.MySQL8Dialect
+spring.jpa.properties.hibernate.dialect.storage_engine=innodb
+
+spring.jpa.show-sql=true
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.format_sql=true

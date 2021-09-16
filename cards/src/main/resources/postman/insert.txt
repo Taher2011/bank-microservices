@@ -1,0 +1,26 @@
+[
+    {
+        "customer-id": 1,
+        "amount-used": 50000,
+        "avilable-amount": 50000,
+        "card-type": "Credit",
+        "create-date": "2021-07-28",
+        "total-limit": 100000
+    },
+    {
+        "customer-id": 1,
+        "amount-used": 50000,
+        "avilable-amount": 100000,
+        "card-type": "Debit",
+        "create-date": "2021-07-28",
+        "total-limit": 150000
+    },
+    {
+        "customer-id": 1,
+        "amount-used": 50000,
+        "avilable-amount": 100000,
+        "card-type": "Ammexe",
+        "create-date": "2021-07-28",
+        "total-limit": 150000
+    }
+]
