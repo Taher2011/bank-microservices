@@ -1,0 +1,183 @@
+version: '3.8'
+services:
+  account-db:
+    image: mysql:latest
+    restart: always
+    ports:
+    - 3307:3306
+    environment:
+      MYSQL_DATABASE: bank_account
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+    - bank
+  card-db:
+    image: mysql:latest
+    restart: always
+    ports:
+    - 3308:3306
+    environment:
+      MYSQL_DATABASE: bank_card
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+    - bank
+  loan-db:
+    image: mysql:latest
+    restart: always
+    ports:
+    - 3309:3306
+    environment:
+      MYSQL_DATABASE: bank_loan
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+    - bank
+  user-db:
+    image: mysql:latest
+    restart: always
+    ports:
+    - 3310:3306
+    environment:
+      MYSQL_DATABASE: bank_user
+      MYSQL_USER: sa
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    networks:
+    - bank
+  configserver:
+    image: configserver:latest
+    mem_limit: 700m
+    ports:
+    - 8072:8071
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    networks:
+    - bank
+  eurekaserver:
+    image: eurekaserver:latest
+    mem_limit: 700m
+    ports:
+    - 8069:8070
+    networks:
+    - bank
+  users:
+    image: user:latest
+    restart: always
+    ports:
+    - 3031:3030
+    depends_on:
+    - user-db
+    - configserver
+    - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 4
+        window: 120s
+    command: sh -c './wait-for user-db:3306 -- npm start'
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+    - bank
+  accounts:
+    image: account:latest
+    restart: always
+    ports:
+    - 5051:5050
+    - 5052:5050
+    depends_on:
+    - account-db
+    - configserver
+    - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 4
+        window: 120s
+    command: sh -c './wait-for account-db:3306 -- npm start'
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+    - bank
+  cards:
+    image: card:latest
+    restart: always
+    ports:
+    - 7071:7070
+    - 7072:7070
+    depends_on:
+    - card-db
+    - configserver
+    - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 4
+        window: 120s
+    command: sh -c './wait-for card-db:3306 -- npm start'
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+    - bank
+  loans:
+    image: loan:latest
+    restart: always
+    ports:
+    - 6061:6060
+    - 6062:6060
+    depends_on:
+    - loan-db
+    - configserver
+    - eurekaserver
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 4
+        window: 120s
+    command: sh -c './wait-for loan-db:3306 -- npm start'
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+    - bank
+  gatewayserver:
+    image: gatewayserver:latest
+    restart: always
+    ports:
+    - 8074:8073
+    depends_on:
+    - configserver
+    - eurekaserver
+    - accounts
+    - cards
+    - loans
+    - users
+    deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 45s
+        max_attempts: 4
+        window: 180s
+    environment:
+      SPRING_PROFILES_ACTIVE: default
+      SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eurekaserver:8070/eureka/
+    networks:
+    - bank
+networks:
+  bank: null

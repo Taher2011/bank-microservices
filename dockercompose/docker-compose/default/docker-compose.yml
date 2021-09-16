@@ -1,0 +1,110 @@
+version: '3.8'
+services:
+   mysql-account-db:
+      image: mysql:latest
+      restart: always
+      ports:
+      - 3307:3306
+      environment:
+         MYSQL_DATABASE: account_DB
+         MYSQL_USER: sa
+         MYSQL_PASSWORD: password
+         MYSQL_ROOT_PASSWORD: password
+      networks:
+      - bank
+   mysql-loan-db:
+      image: mysql:latest
+      restart: always
+      ports:
+      - 3308:3306
+      environment:
+         MYSQL_DATABASE: loan_DB
+         MYSQL_USER: sa
+         MYSQL_PASSWORD: password
+         MYSQL_ROOT_PASSWORD: password
+      networks:
+      - bank
+   mysql-card-db:
+      image: mysql:latest
+      restart: always
+      ports:
+      - 3309:3306
+      environment:
+         MYSQL_DATABASE: card_DB
+         MYSQL_USER: sa
+         MYSQL_PASSWORD: password
+         MYSQL_ROOT_PASSWORD: password
+      networks:
+      - bank
+   configserver:
+      image: configserver:latest
+      mem_limit: 700m
+      ports:
+      - 8072:8071
+      networks:
+      - bank
+   accounts:
+      image: account:latest
+      restart: always
+      ports:
+      - 5051:5050
+      - 5052:5050
+      depends_on:
+      - mysql-account-db
+      - configserver
+      deploy:
+         restart_policy:
+            condition: on-failure
+            delay: 30s
+            max_attempts: 3
+            window: 120s
+      command: sh -c './wait-for mysql-account-db:3306 -- npm start'
+      environment:
+         SPRING_PROFILES_ACTIVE: default
+         SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      networks:
+      - bank
+   loans:
+      image: loan:latest
+      restart: always
+      ports:
+      - 6061:6060
+      - 6062:6060
+      depends_on:
+      - mysql-loan-db
+      - configserver
+      deploy:
+         restart_policy:
+            condition: on-failure
+            delay: 30s
+            max_attempts: 3
+            window: 120s
+      command: sh -c './wait-for mysql-loan-db:3306 -- npm start'
+      environment:
+         SPRING_PROFILES_ACTIVE: default
+         SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      networks:
+      - bank
+   cards:
+      image: card:latest
+      restart: always
+      ports:
+      - 7071:7070
+      - 7072:7070
+      depends_on:
+      - mysql-card-db
+      - configserver
+      deploy:
+         restart_policy:
+            condition: on-failure
+            delay: 30s
+            max_attempts: 3
+            window: 120s
+      command: sh -c './wait-for mysql-card-db:3306 -- npm start'
+      environment:
+         SPRING_PROFILES_ACTIVE: default
+         SPRING_CONFIG_IMPORT: configserver:http://configserver:8071/
+      networks:
+      - bank
+networks:
+   bank: null
