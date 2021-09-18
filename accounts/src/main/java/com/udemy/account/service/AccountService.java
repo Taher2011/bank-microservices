@@ -136,12 +136,12 @@ public class AccountService {
 
 	@CircuitBreaker(name = "customerDetails", fallbackMethod = "customerDetailsFallBack")
 //	@Retry(name = "retyrCustomerDetails", fallbackMethod = "customerDetailsFallBack")
-	public CustomerDetailsDTO getCustomerDetails(String correlationid, int customerId) throws AccountServiceException {
-		logger.debug("correlationid is {} ", correlationid);
+	public CustomerDetailsDTO getCustomerDetails(String traceId, int customerId) throws AccountServiceException {
+		logger.debug("traceId is {} ", traceId);
 		logger.info("started getting customer account details for customerId {} ", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
-		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(correlationid, customerId);
-		List<CardDTO> cardDetails = cardsFeignClient.getCardsForCustomer(correlationid, customerId);
+		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
+		List<CardDTO> cardDetails = cardsFeignClient.getCardsForCustomer(traceId, customerId);
 		CustomerDetailsDTO customerDetails = new CustomerDetailsDTO();
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);
@@ -150,11 +150,12 @@ public class AccountService {
 		return customerDetails;
 	}
 
-	private CustomerDetailsDTO customerDetailsFallBack(String correlationid, int customerId, Throwable t)
+	private CustomerDetailsDTO customerDetailsFallBack(String traceId, int customerId, Throwable t)
 			throws AccountServiceException {
+		logger.debug("traceId is {} ", traceId);
 		logger.info("started getting customer account details for customerId {} via fallback mechanism", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
-		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(correlationid, customerId);
+		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
 		CustomerDetailsDTO customerDetails = new CustomerDetailsDTO();
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);

@@ -25,15 +25,16 @@ public class LoanController {
 	private final LoanService loanService;
 
 	public LoanController(LoanService loanService) {
+
 		super();
 		this.loanService = loanService;
 	}
 
 	@GetMapping("/{customer-id}")
 	public ResponseEntity<List<LoanDTO>> getLoansForCustomer(
-			@RequestHeader(required = false, name = "bank-correlation-id") String correlationid,
+			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws LoanServiceException {
-		return new ResponseEntity<>(loanService.getLoansForCustomer(correlationid, customerId), HttpStatus.OK);
+		return new ResponseEntity<>(loanService.getLoansForCustomer(traceId, customerId), HttpStatus.OK);
 	}
 
 	@PostMapping("/{customer-id}")

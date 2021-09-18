@@ -41,9 +41,9 @@ public class CardService {
 		this.random = random;
 	}
 
-	public List<CardDTO> getCardsForCustomer(String correlationid, int customerId) throws CardServiceException {
+	public List<CardDTO> getCardsForCustomer(String traceId, int customerId) throws CardServiceException {
+		logger.debug("traceId is {} ", traceId);
 		logger.info("started getting customer card details for customerId {} ", customerId);
-		logger.debug("correlationid is {} ", correlationid);
 		List<Card> cards = cardRepository.findByCustomerId(customerId);
 		List<CardDTO> cardsDTO = null;
 		if (!ObjectUtils.isEmpty(cards)) {

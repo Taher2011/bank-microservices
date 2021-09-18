@@ -60,9 +60,9 @@ public class AccountController {
 
 	@GetMapping("/customer/{customer-id}")
 	public ResponseEntity<CustomerDetailsDTO> getCustomerDetails(
-			@RequestHeader(required = false, name = "correlation-id") String correlationid,
+			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws AccountServiceException {
-		return new ResponseEntity<>(accountService.getCustomerDetails(correlationid, customerId), HttpStatus.OK);
+		return new ResponseEntity<>(accountService.getCustomerDetails(traceId, customerId), HttpStatus.OK);
 	}
 
 }

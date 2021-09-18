@@ -31,9 +31,9 @@ public class CardController {
 
 	@GetMapping("/{customer-id}")
 	public ResponseEntity<List<CardDTO>> getCardsForCustomer(
-			@RequestHeader(required = false, name = "bank-correlation-id") String correlationid,
+			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws CardServiceException {
-		return new ResponseEntity<>(cardService.getCardsForCustomer(correlationid, customerId), HttpStatus.OK);
+		return new ResponseEntity<>(cardService.getCardsForCustomer(traceId, customerId), HttpStatus.OK);
 	}
 
 	@PostMapping("/{customer-id}")

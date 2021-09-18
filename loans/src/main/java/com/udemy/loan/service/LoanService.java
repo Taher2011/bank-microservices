@@ -40,9 +40,9 @@ public class LoanService {
 		this.random = random;
 	}
 
-	public List<LoanDTO> getLoansForCustomer(String correlationid, int customerId) throws LoanServiceException {
+	public List<LoanDTO> getLoansForCustomer(String traceId, int customerId) throws LoanServiceException {
+		logger.debug("traceId is {} ", traceId);
 		logger.info("started getting customer loan details for customerId {} ", customerId);
-		logger.debug("correlationid is {} ", correlationid);
 		List<Loan> loans = loanRepository.findByCustomerIdOrderByStartDate(customerId);
 		List<LoanDTO> loansDTO = null;
 		if (ObjectUtils.isNotEmpty(loans)) {
