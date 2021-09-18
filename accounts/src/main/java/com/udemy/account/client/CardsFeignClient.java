@@ -13,7 +13,7 @@ import com.udemy.account.model.CardDTO;
 public interface CardsFeignClient {
 
 	@GetMapping(path = "v1/cards/{customer-id}", consumes = "application/json")
-	List<CardDTO> getCardsForCustomer(@RequestHeader("bank-correlation-id") String correlationid,
+	List<CardDTO> getCardsForCustomer(@RequestHeader("trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId);
 
 }

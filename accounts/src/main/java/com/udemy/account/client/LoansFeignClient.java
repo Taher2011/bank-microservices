@@ -13,7 +13,7 @@ import com.udemy.account.model.LoanDTO;
 public interface LoansFeignClient {
 
 	@GetMapping(path = "v1/loans/{customer-id}", consumes = "application/json")
-	List<LoanDTO> getLoansForCustomer(@RequestHeader("bank-correlation-id") String correlationid,
+	List<LoanDTO> getLoansForCustomer(@RequestHeader("trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId);
 
 }
