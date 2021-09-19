@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
 	CUSTOMER_NOT_FOUND(101, "customer with id '%s' not found", HttpStatus.NOT_FOUND),
-	CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND(102, "customer with id '%s' and accountNumber '%s' not found",
+	CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND(102, "customer with id '%s' and account-number '%s' not found",
 			HttpStatus.NOT_FOUND),
 	INTERNAL_SERVER_ERROR(501, "Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
 

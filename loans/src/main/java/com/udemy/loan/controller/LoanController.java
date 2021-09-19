@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,28 +31,36 @@ public class LoanController {
 		this.loanService = loanService;
 	}
 
-	@GetMapping("/{customer-id}")
+	@GetMapping("/customers")
+	public ResponseEntity<List<LoanDTO>> getLoans() {
+		return new ResponseEntity<>(loanService.getLoans(), HttpStatus.OK);
+	}
+
+	@GetMapping("/customers/{customer-id}")
 	public ResponseEntity<List<LoanDTO>> getLoansForCustomer(
 			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws LoanServiceException {
 		return new ResponseEntity<>(loanService.getLoansForCustomer(traceId, customerId), HttpStatus.OK);
 	}
 
-	@PostMapping("/{customer-id}")
+	@PostMapping("/customers/{customer-id}")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createLoan(@RequestBody LoanDTO loan) {
-		loanService.createLoan(loan);
+	public void createLoan(@PathVariable(name = "customer-id") int customerId, @RequestBody LoanDTO loan) {
+		loanService.createLoan(customerId, loan);
 	}
 
+	@DeleteMapping("/customers/{customer-id}/loan/{loan-number}")
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteAccount(@PathVariable(name = "customer-id") int customerId,
+			@PathVariable(name = "loan-number") int loanNumber) throws LoanServiceException {
+		loanService.deleteLoan(customerId, loanNumber);
+	}
+
+	
 	@PostMapping("/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createLoans(@RequestBody List<LoanDTO> loans) {
 		loanService.createLoans(loans);
-	}
-
-	@GetMapping("/")
-	public ResponseEntity<List<LoanDTO>> getLoans() {
-		return new ResponseEntity<>(loanService.getLoans(), HttpStatus.OK);
 	}
 
 	@GetMapping("/properties")

@@ -3,6 +3,7 @@ package com.udemy.card.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -42,35 +43,35 @@ public class CardService {
 	}
 
 	public List<CardDTO> getCardsForCustomer(String traceId, int customerId) throws CardServiceException {
-		logger.debug("traceId is {} ", traceId);
-		logger.info("started getting customer card details for customerId {} ", customerId);
+		logger.debug("trace-id is {} ", traceId);
+		logger.info("started getting customer card details for customer-id {} ", customerId);
 		List<Card> cards = cardRepository.findByCustomerId(customerId);
 		List<CardDTO> cardsDTO = null;
-		if (!ObjectUtils.isEmpty(cards)) {
-			cardsDTO = cards.stream().map(e -> {
-				CardDTO cardDTO = new CardDTO();
-				cardDTO.setCardId(e.getCardId());
-				cardDTO.setCustomerId(e.getCustomerId());
-				cardDTO.setCardNumber(e.getCardNumber());
-				cardDTO.setCardType(e.getCardType());
-				cardDTO.setTotalLimit(e.getTotalLimit());
-				cardDTO.setAmountUsed(e.getAmountUsed());
-				cardDTO.setAvilableAmount(e.getAvilableAmount());
-				cardDTO.setCreateDate(e.getCreateDate());
-				return cardDTO;
-			}).collect(Collectors.toList());
-			logger.info("completed getting customer card details for customerId {} ", customerId);
-			return cardsDTO;
-		} else {
-			logger.error("Customer id {} not found", customerId);
-			throw new CardServiceException(ErrorCode.CUSTOMER_NOT_FOUND);
+		if (ObjectUtils.isEmpty(cards)) {
+			logger.error("customer-id {} not found", customerId);
+			throw new CardServiceException(ErrorCode.CUSTOMER_NOT_FOUND,
+					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage(), customerId));
 		}
+		cardsDTO = cards.stream().map(e -> {
+			CardDTO cardDTO = new CardDTO();
+			cardDTO.setCardId(e.getCardId());
+			cardDTO.setCustomerId(e.getCustomerId());
+			cardDTO.setCardNumber(e.getCardNumber());
+			cardDTO.setCardType(e.getCardType());
+			cardDTO.setTotalLimit(e.getTotalLimit());
+			cardDTO.setAmountUsed(e.getAmountUsed());
+			cardDTO.setAvilableAmount(e.getAvilableAmount());
+			cardDTO.setCreateDate(e.getCreateDate());
+			return cardDTO;
+		}).collect(Collectors.toList());
+		logger.info("completed getting customer card details for customer-id {} ", customerId);
+		return cardsDTO;
 	}
 
-	public void createCard(CardDTO cardDTO) {
-		logger.info("started creating customer card details for customerId {} ", cardDTO.getCustomerId());
+	public void createCard(int customerId, CardDTO cardDTO) {
+		logger.info("started creating customer card details for customer-id {} ", customerId);
 		Card card = new Card();
-		card.setCustomerId(cardDTO.getCustomerId());
+		card.setCustomerId(customerId);
 		card.setCardId(random.nextInt(1000));
 		card.setAmountUsed(cardDTO.getAmountUsed());
 		card.setAvilableAmount(cardDTO.getAvilableAmount());
@@ -78,8 +79,23 @@ public class CardService {
 		card.setCardType(cardDTO.getCardType());
 		card.setTotalLimit(cardDTO.getTotalLimit());
 		card.setCreateDate(cardDTO.getCreateDate());
-		logger.info("completed creating customer card details for customerId {} ", cardDTO.getCustomerId());
 		cardRepository.save(card);
+		logger.info("completed creating customer card details for customer-id {} ", customerId);
+	}
+
+	public void deleteCard(int customerId, String cardNumber) throws CardServiceException {
+		logger.info("started checking details for customer-id {} and card-number {} ", customerId, cardNumber);
+		Optional<Card> card = cardRepository.findByCustomerIdAndCardNumber(customerId, cardNumber);
+		logger.info("completed checking details for customer-id {} and card-number {} ", customerId, cardNumber);
+		if (!card.isPresent()) {
+			logger.error("customer with customer-id {} and card-number {} not found", customerId, cardNumber);
+			throw new CardServiceException(ErrorCode.CUSTOMER_WITH_CARD_NUMBER_NOT_FOUND,
+					String.format(ErrorCode.CUSTOMER_WITH_CARD_NUMBER_NOT_FOUND.getMessage(), customerId, cardNumber));
+		}
+		logger.info("started deleting card-number {} ", cardNumber);
+		cardRepository.deleteById(card.get().getCardId());
+		logger.info("completed deleting card-number {} ", cardNumber);
+
 	}
 
 	public void createCards(List<CardDTO> cardDTOs) {

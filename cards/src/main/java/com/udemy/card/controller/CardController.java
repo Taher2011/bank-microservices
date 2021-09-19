@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,28 +30,35 @@ public class CardController {
 		this.cardService = cardService;
 	}
 
-	@GetMapping("/{customer-id}")
+	@GetMapping("/customers")
+	public ResponseEntity<List<CardDTO>> getCards() {
+		return new ResponseEntity<>(cardService.getCards(), HttpStatus.OK);
+	}
+
+	@GetMapping("/customers/{customer-id}")
 	public ResponseEntity<List<CardDTO>> getCardsForCustomer(
 			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws CardServiceException {
 		return new ResponseEntity<>(cardService.getCardsForCustomer(traceId, customerId), HttpStatus.OK);
 	}
 
-	@PostMapping("/{customer-id}")
+	@PostMapping("/customers/{customer-id}")
 	@ResponseStatus(HttpStatus.CREATED)
-	public void createCard(@RequestBody CardDTO card) {
-		cardService.createCard(card);
+	public void createCard(@PathVariable(name = "customer-id") int customerId, @RequestBody CardDTO card) {
+		cardService.createCard(customerId, card);
+	}
+
+	@DeleteMapping("/customers/{customer-id}/card/{card-number}")
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteAccount(@PathVariable(name = "customer-id") int customerId,
+			@PathVariable(name = "card-number") String cardNumber) throws CardServiceException {
+		cardService.deleteCard(customerId, cardNumber);
 	}
 
 	@PostMapping("/")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createAccounts(@RequestBody List<CardDTO> cards) {
 		cardService.createCards(cards);
-	}
-
-	@GetMapping("/")
-	public ResponseEntity<List<CardDTO>> getCards() {
-		return new ResponseEntity<>(cardService.getCards(), HttpStatus.OK);
 	}
 
 	@GetMapping("/properties")

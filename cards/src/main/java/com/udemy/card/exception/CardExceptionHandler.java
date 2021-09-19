@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.udemy.card.model.ErrorDTO;
 
-
 @ControllerAdvice
 public class CardExceptionHandler {
 
@@ -14,7 +13,7 @@ public class CardExceptionHandler {
 	public ResponseEntity<ErrorDTO> cardException(CardServiceException e) {
 		ErrorDTO error = new ErrorDTO();
 		error.setCode(e.getErrorCode().getCode());
-		error.setMessage(e.getErrorCode().getMessage());
+		error.setMessage(e.getMessage());
 		return new ResponseEntity<>(error, e.getErrorCode().getHttpStatus());
 	}
 

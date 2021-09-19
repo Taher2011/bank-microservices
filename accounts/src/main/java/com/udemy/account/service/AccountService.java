@@ -74,11 +74,11 @@ public class AccountService {
 	}
 
 	public List<AccountDTO> getAccountsForCustomer(int customerId) throws AccountServiceException {
-		logger.info("started getting customer account details for customerId {} ", customerId);
+		logger.info("started getting customer account details for customer-id {} ", customerId);
 		List<Account> accounts = accountRepository.findByCustomerId(customerId);
 		List<AccountDTO> accountsDTO = null;
 		if (ObjectUtils.isEmpty(accounts)) {
-			logger.error("Customer id {} not found", customerId);
+			logger.error("customer-id {} not found", customerId);
 			throw new AccountServiceException(ErrorCode.CUSTOMER_NOT_FOUND,
 					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage(), customerId));
 		}
@@ -91,13 +91,13 @@ public class AccountService {
 			accountDTO.setCreateDate(e.getCreateDate());
 			return accountDTO;
 		}).collect(Collectors.toList());
-		logger.info("completed getting customer account details for customerId {} ", customerId);
+		logger.info("completed getting customer account details for customer-id {} ", customerId);
 		return accountsDTO;
 
 	}
 
 	public void createAccount(int customerId, AccountDTO accountDTO) {
-		logger.info("started creating customer account details for customerId {} ", accountDTO.getCustomerId());
+		logger.info("started creating customer account details for customer-id {} ", customerId);
 		Account account = new Account();
 		int accountNumber = ThreadLocalRandom.current().nextInt();
 		account.setAccountNumber(accountNumber);
@@ -105,22 +105,22 @@ public class AccountService {
 		account.setAccountType(accountDTO.getAccountType());
 		account.setBranchAddress(accountDTO.getBranchAddress());
 		account.setCreateDate(accountDTO.getCreateDate());
-		logger.info("completed creating customer account details for customerId {} ", accountDTO.getCustomerId());
+		logger.info("completed creating customer account details for customer-id {} ", customerId);
 		accountRepository.save(account);
 	}
 
 	public void deleteAccount(int customerId, int accountNumber) throws AccountServiceException {
-		logger.info("started checking details for customer {} and accountNumber {} ", customerId, accountNumber);
+		logger.info("started checking details for customer-id {} and account-number {} ", customerId, accountNumber);
 		Optional<Account> account = accountRepository.findByCustomerIdAndAccountNumber(customerId, accountNumber);
-		logger.info("completed checking details for customer {} and accountNumber {} ", customerId, accountNumber);
+		logger.info("completed checking details for customer-id {} and account-number {} ", customerId, accountNumber);
 		if (!account.isPresent()) {
-			logger.error("customer with id {} and accountNumber {} not found", customerId, accountNumber);
+			logger.error("customer with customer-id {} and account-number {} not found", customerId, accountNumber);
 			throw new AccountServiceException(ErrorCode.CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND, String
 					.format(ErrorCode.CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND.getMessage(), customerId, accountNumber));
 		}
-		logger.info("started deleting account number {} ", accountNumber);
+		logger.info("started deleting account-number {} ", accountNumber);
 		accountRepository.deleteById(accountNumber);
-		logger.info("completed deleting account number {} ", accountNumber);
+		logger.info("completed deleting account-number {} ", accountNumber);
 
 	}
 
@@ -153,8 +153,8 @@ public class AccountService {
 	@CircuitBreaker(name = "customerDetails", fallbackMethod = "customerDetailsFallBack")
 //	@Retry(name = "retyrCustomerDetails", fallbackMethod = "customerDetailsFallBack")
 	public CustomerDetailsDTO getCustomerDetails(String traceId, int customerId) throws AccountServiceException {
-		logger.debug("traceId is {} ", traceId);
-		logger.info("started getting customer account details for customerId {} ", customerId);
+		logger.debug("trace-id is {} ", traceId);
+		logger.info("started getting customer account details for customer-id {} ", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
 		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
 		List<CardDTO> cardDetails = cardsFeignClient.getCardsForCustomer(traceId, customerId);
@@ -162,20 +162,20 @@ public class AccountService {
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);
 		customerDetails.setCards(cardDetails);
-		logger.info("completed getting customer account details for customerId {} ", customerId);
+		logger.info("completed getting customer account details for customer-id {} ", customerId);
 		return customerDetails;
 	}
 
 	private CustomerDetailsDTO customerDetailsFallBack(String traceId, int customerId, Throwable t)
 			throws AccountServiceException {
 		logger.debug("traceId is {} ", traceId);
-		logger.info("started getting customer account details for customerId {} via fallback mechanism", customerId);
+		logger.info("started getting customer account details for customer-id {} via fallback mechanism", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
 		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
 		CustomerDetailsDTO customerDetails = new CustomerDetailsDTO();
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);
-		logger.info("completed getting customer account details for customerId {} via fallback mechanism", customerId);
+		logger.info("completed getting customer account details for customer-id {} via fallback mechanism", customerId);
 		return customerDetails;
 	}
 }

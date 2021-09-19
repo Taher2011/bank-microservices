@@ -3,6 +3,7 @@ package com.udemy.loan.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -41,35 +42,35 @@ public class LoanService {
 	}
 
 	public List<LoanDTO> getLoansForCustomer(String traceId, int customerId) throws LoanServiceException {
-		logger.debug("traceId is {} ", traceId);
-		logger.info("started getting customer loan details for customerId {} ", customerId);
+		logger.debug("trace-id is {} ", traceId);
+		logger.info("started getting customer loan details for customer-id {} ", customerId);
 		List<Loan> loans = loanRepository.findByCustomerIdOrderByStartDate(customerId);
 		List<LoanDTO> loansDTO = null;
-		if (ObjectUtils.isNotEmpty(loans)) {
-			loansDTO = loans.stream().map(e -> {
-				LoanDTO loanDTO = new LoanDTO();
-				loanDTO.setCustomerId(e.getCustomerId());
-				loanDTO.setLoanId(e.getLoanId());
-				loanDTO.setStartDate(e.getStartDate());
-				loanDTO.setLoanType(e.getLoanType());
-				loanDTO.setTotalLoan(e.getTotalLoan());
-				loanDTO.setAmountPaid(e.getAmountPaid());
-				loanDTO.setOutstandingAmount(e.getOutstandingAmount());
-				loanDTO.setCreateDate(e.getCreateDate());
-				return loanDTO;
-			}).collect(Collectors.toList());
-			logger.info("completed getting customer loan details for customerId {} ", customerId);
-			return loansDTO;
-		} else {
-			logger.error("Customer id {} not found", customerId);
-			throw new LoanServiceException(ErrorCode.CUSTOMER_NOT_FOUND);
+		if (ObjectUtils.isEmpty(loans)) {
+			logger.error("customer-id {} not found", customerId);
+			throw new LoanServiceException(ErrorCode.CUSTOMER_NOT_FOUND,
+					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage(), customerId));
 		}
+		loansDTO = loans.stream().map(e -> {
+			LoanDTO loanDTO = new LoanDTO();
+			loanDTO.setCustomerId(e.getCustomerId());
+			loanDTO.setLoanId(e.getLoanId());
+			loanDTO.setStartDate(e.getStartDate());
+			loanDTO.setLoanType(e.getLoanType());
+			loanDTO.setTotalLoan(e.getTotalLoan());
+			loanDTO.setAmountPaid(e.getAmountPaid());
+			loanDTO.setOutstandingAmount(e.getOutstandingAmount());
+			loanDTO.setCreateDate(e.getCreateDate());
+			return loanDTO;
+		}).collect(Collectors.toList());
+		logger.info("completed getting customer loan details for customer-id {} ", customerId);
+		return loansDTO;
 	}
 
-	public void createLoan(LoanDTO loanDTO) {
-		logger.info("started creating customer loan details for customerId {} ", loanDTO.getCustomerId());
+	public void createLoan(int customerId, LoanDTO loanDTO) {
+		logger.info("started creating customer loan details for customer-id {} ", customerId);
 		Loan loan = new Loan();
-		loan.setCustomerId(loanDTO.getCustomerId());
+		loan.setCustomerId(customerId);
 		loan.setLoanId(random.nextInt(1000));
 		loan.setLoanType(loanDTO.getLoanType());
 		loan.setAmountPaid(loanDTO.getAmountPaid());
@@ -77,8 +78,23 @@ public class LoanService {
 		loan.setOutstandingAmount(loanDTO.getOutstandingAmount());
 		loan.setStartDate(loanDTO.getStartDate());
 		loan.setTotalLoan(loanDTO.getTotalLoan());
-		logger.info("completed creating customer loan details for customerId {} ", loanDTO.getCustomerId());
 		loanRepository.save(loan);
+		logger.info("completed creating customer loan details for customer-id {} ", customerId);
+	}
+
+	public void deleteLoan(int customerId, int loanNumber) throws LoanServiceException {
+		logger.info("started checking details for customer-id {} and loan-number {} ", customerId, loanNumber);
+		Optional<Loan> card = loanRepository.findByCustomerIdAndLoanId(customerId, loanNumber);
+		logger.info("completed checking details for customer-id {} and loan-number {} ", customerId, loanNumber);
+		if (!card.isPresent()) {
+			logger.error("customer with customer-id {} and loan-number {} not found", customerId, loanNumber);
+			throw new LoanServiceException(ErrorCode.CUSTOMER_WITH_LOAN_NUMBER_NOT_FOUND,
+					String.format(ErrorCode.CUSTOMER_WITH_LOAN_NUMBER_NOT_FOUND.getMessage(), customerId, loanNumber));
+		}
+		logger.info("started deleting loan-number {} ", loanNumber);
+		loanRepository.deleteById(loanNumber);
+		logger.info("completed deleting loan-number {} ", loanNumber);
+
 	}
 
 	public void createLoans(List<LoanDTO> loanDTOs) {

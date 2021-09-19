@@ -1,8 +1,10 @@
 package com.udemy.card.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class CardServiceException extends Exception {
 
 	/**
@@ -12,9 +14,6 @@ public class CardServiceException extends Exception {
 
 	private final ErrorCode errorCode;
 
-	public CardServiceException(ErrorCode errorCode) {
-		super(errorCode.getMessage());
-		this.errorCode = errorCode;
-	}
+	private final String message;
 
 }

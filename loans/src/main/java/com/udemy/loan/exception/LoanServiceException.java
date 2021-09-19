@@ -1,8 +1,10 @@
 package com.udemy.loan.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class LoanServiceException extends Exception {
 
 	/**
@@ -12,9 +14,6 @@ public class LoanServiceException extends Exception {
 
 	private final ErrorCode errorCode;
 
-	public LoanServiceException(ErrorCode errorCode) {
-		super(errorCode.getMessage());
-		this.errorCode = errorCode;
-	}
+	private final String message;
 
 }
