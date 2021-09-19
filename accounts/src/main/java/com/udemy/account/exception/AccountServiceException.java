@@ -1,8 +1,10 @@
 package com.udemy.account.exception;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class AccountServiceException extends Exception {
 
 	/**
@@ -12,9 +14,6 @@ public class AccountServiceException extends Exception {
 
 	private final ErrorCode errorCode;
 
-	public AccountServiceException(ErrorCode errorCode) {
-		super(errorCode.getMessage());
-		this.errorCode = errorCode;
-	}
+	private final String message;
 
 }

@@ -3,6 +3,7 @@ package com.udemy.account.service;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -51,58 +52,6 @@ public class AccountService {
 		this.accountServiceConfig = accountServiceConfig;
 	}
 
-	public List<AccountDTO> getAccountsForCustomer(int customerId) throws AccountServiceException {
-		logger.info("started getting customer account details for customerId {} ", customerId);
-		List<Account> accounts = accountRepository.findByCustomerId(customerId);
-		List<AccountDTO> accountsDTO = null;
-		if (!ObjectUtils.isEmpty(accounts)) {
-			accountsDTO = accounts.stream().map(e -> {
-				AccountDTO accountDTO = new AccountDTO();
-				accountDTO.setCustomerId(e.getCustomerId());
-				accountDTO.setAccountNumber(e.getAccountNumber());
-				accountDTO.setAccountType(e.getAccountType());
-				accountDTO.setBranchAddress(e.getBranchAddress());
-				accountDTO.setCreateDate(e.getCreateDate());
-				return accountDTO;
-			}).collect(Collectors.toList());
-			logger.info("completed getting customer account details for customerId {} ", customerId);
-			return accountsDTO;
-		} else {
-			logger.error("Customer id {} not found", customerId);
-			throw new AccountServiceException(ErrorCode.CUSTOMER_NOT_FOUND);
-		}
-
-	}
-
-	public void createAccount(int customerId, AccountDTO accountDTO) {
-		logger.info("started creating customer account details for customerId {} ", accountDTO.getCustomerId());
-		Account account = new Account();
-		int accountNumber = ThreadLocalRandom.current().nextInt();
-		account.setAccountNumber(accountNumber);
-		account.setCustomerId(customerId);
-		account.setAccountType(accountDTO.getAccountType());
-		account.setBranchAddress(accountDTO.getBranchAddress());
-		account.setCreateDate(accountDTO.getCreateDate());
-		logger.info("completed creating customer account details for customerId {} ", accountDTO.getCustomerId());
-		accountRepository.save(account);
-	}
-
-	public void createAccounts(List<AccountDTO> accountDTOs) {
-		logger.info("started creating customer account details for customers");
-		List<Account> accounts = accountDTOs.stream().map(e -> {
-			Account account = new Account();
-			account.setCustomerId(e.getCustomerId());
-			int accountNumber = ThreadLocalRandom.current().nextInt();
-			account.setAccountNumber(accountNumber);
-			account.setAccountType(e.getAccountType());
-			account.setBranchAddress(e.getBranchAddress());
-			account.setCreateDate(e.getCreateDate());
-			return account;
-		}).collect(Collectors.toList());
-		logger.info("completed creating customer account details for customerId");
-		accountRepository.saveAll(accounts);
-	}
-
 	public List<AccountDTO> getAccounts() {
 		logger.info("started getting customer account details");
 		List<Account> accounts = accountRepository.findAll();
@@ -122,6 +71,73 @@ public class AccountService {
 		}
 		logger.info("completed getting customer account details");
 		return Collections.emptyList();
+	}
+
+	public List<AccountDTO> getAccountsForCustomer(int customerId) throws AccountServiceException {
+		logger.info("started getting customer account details for customerId {} ", customerId);
+		List<Account> accounts = accountRepository.findByCustomerId(customerId);
+		List<AccountDTO> accountsDTO = null;
+		if (ObjectUtils.isEmpty(accounts)) {
+			logger.error("Customer id {} not found", customerId);
+			throw new AccountServiceException(ErrorCode.CUSTOMER_NOT_FOUND,
+					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage()));
+		}
+		accountsDTO = accounts.stream().map(e -> {
+			AccountDTO accountDTO = new AccountDTO();
+			accountDTO.setCustomerId(e.getCustomerId());
+			accountDTO.setAccountNumber(e.getAccountNumber());
+			accountDTO.setAccountType(e.getAccountType());
+			accountDTO.setBranchAddress(e.getBranchAddress());
+			accountDTO.setCreateDate(e.getCreateDate());
+			return accountDTO;
+		}).collect(Collectors.toList());
+		logger.info("completed getting customer account details for customerId {} ", customerId);
+		return accountsDTO;
+
+	}
+
+	public void createAccount(int customerId, AccountDTO accountDTO) {
+		logger.info("started creating customer account details for customerId {} ", accountDTO.getCustomerId());
+		Account account = new Account();
+		int accountNumber = ThreadLocalRandom.current().nextInt();
+		account.setAccountNumber(accountNumber);
+		account.setCustomerId(customerId);
+		account.setAccountType(accountDTO.getAccountType());
+		account.setBranchAddress(accountDTO.getBranchAddress());
+		account.setCreateDate(accountDTO.getCreateDate());
+		logger.info("completed creating customer account details for customerId {} ", accountDTO.getCustomerId());
+		accountRepository.save(account);
+	}
+
+	public void deleteAccount(int customerId, int accountNumber) throws AccountServiceException {
+		logger.info("started checking details for customer {} and accountNumber {} ", customerId, accountNumber);
+		Optional<Account> account = accountRepository.findByCustomerIdAndAccountNumber(customerId, accountNumber);
+		logger.info("completed checking details for customer {} and accountNumber {} ", customerId, accountNumber);
+		if (!account.isPresent()) {
+			logger.error("customer with id {} and accountNumber {} not found", customerId, accountNumber);
+			throw new AccountServiceException(ErrorCode.CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND, String
+					.format(ErrorCode.CUSTOMER_WITH_ACCOUNT_NUMBER_NOT_FOUND.getMessage(), customerId, accountNumber));
+		}
+		logger.info("started deleting account number {} ", accountNumber);
+		accountRepository.deleteById(accountNumber);
+		logger.info("completed deleting account number {} ", accountNumber);
+
+	}
+
+	public void createAccounts(List<AccountDTO> accountDTOs) {
+		logger.info("started creating customer account details for customers");
+		List<Account> accounts = accountDTOs.stream().map(e -> {
+			Account account = new Account();
+			account.setCustomerId(e.getCustomerId());
+			int accountNumber = ThreadLocalRandom.current().nextInt();
+			account.setAccountNumber(accountNumber);
+			account.setAccountType(e.getAccountType());
+			account.setBranchAddress(e.getBranchAddress());
+			account.setCreateDate(e.getCreateDate());
+			return account;
+		}).collect(Collectors.toList());
+		logger.info("completed creating customer account details for customerId");
+		accountRepository.saveAll(accounts);
 	}
 
 	public String getAccountsProperties() throws JsonProcessingException {

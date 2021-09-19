@@ -13,7 +13,7 @@ public class AccountExceptionHandler {
 	public ResponseEntity<ErrorDTO> accountException(AccountServiceException e) {
 		ErrorDTO error = new ErrorDTO();
 		error.setCode(e.getErrorCode().getCode());
-		error.setMessage(e.getErrorCode().getMessage());
+		error.setMessage(e.getMessage());
 		return new ResponseEntity<>(error, e.getErrorCode().getHttpStatus());
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,16 +31,28 @@ public class AccountController {
 		this.accountService = accountService;
 	}
 
-	@GetMapping("/{customer-id}")
+	@GetMapping("/customers")
+	public ResponseEntity<List<AccountDTO>> getAccounts() {
+		return new ResponseEntity<>(accountService.getAccounts(), HttpStatus.OK);
+	}
+
+	@GetMapping("/customers/{customer-id}")
 	public ResponseEntity<List<AccountDTO>> getAccountsForCustomer(@PathVariable(name = "customer-id") int customerId)
 			throws AccountServiceException {
 		return new ResponseEntity<>(accountService.getAccountsForCustomer(customerId), HttpStatus.OK);
 	}
 
-	@PostMapping("/{customer-id}")
+	@PostMapping("/customers/{customer-id}")
 	@ResponseStatus(HttpStatus.CREATED)
 	public void createAccount(@PathVariable(name = "customer-id") int customerId, @RequestBody AccountDTO account) {
 		accountService.createAccount(customerId, account);
+	}
+
+	@DeleteMapping("/customers/{customer-id}/account/{account-number}")
+	@ResponseStatus(HttpStatus.OK)
+	public void deleteAccount(@PathVariable(name = "customer-id") int customerId,
+			@PathVariable(name = "account-number") int accountNumber) throws AccountServiceException {
+		accountService.deleteAccount(customerId, accountNumber);
 	}
 
 	@PostMapping("/")
@@ -48,17 +61,12 @@ public class AccountController {
 		accountService.createAccounts(accounts);
 	}
 
-	@GetMapping("/")
-	public ResponseEntity<List<AccountDTO>> getAccounts() {
-		return new ResponseEntity<>(accountService.getAccounts(), HttpStatus.OK);
-	}
-
 	@GetMapping("/properties")
 	public ResponseEntity<String> getAccountsProperties() throws JsonProcessingException {
 		return new ResponseEntity<>(accountService.getAccountsProperties(), HttpStatus.OK);
 	}
 
-	@GetMapping("/customer/{customer-id}")
+	@GetMapping("/customer-details/{customer-id}")
 	public ResponseEntity<CustomerDetailsDTO> getCustomerDetails(
 			@RequestHeader(required = false, name = "trace-id") String traceId,
 			@PathVariable(name = "customer-id") int customerId) throws AccountServiceException {
