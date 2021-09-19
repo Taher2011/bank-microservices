@@ -80,7 +80,7 @@ public class AccountService {
 		if (ObjectUtils.isEmpty(accounts)) {
 			logger.error("Customer id {} not found", customerId);
 			throw new AccountServiceException(ErrorCode.CUSTOMER_NOT_FOUND,
-					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage()));
+					String.format(ErrorCode.CUSTOMER_NOT_FOUND.getMessage(), customerId));
 		}
 		accountsDTO = accounts.stream().map(e -> {
 			AccountDTO accountDTO = new AccountDTO();
