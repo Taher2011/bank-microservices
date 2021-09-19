@@ -156,8 +156,9 @@ public class AccountService {
 		logger.debug("trace-id is {} ", traceId);
 		logger.info("started getting customer account details for customer-id {} ", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
-		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
 		List<CardDTO> cardDetails = cardsFeignClient.getCardsForCustomer(traceId, customerId);
+		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
+		
 		CustomerDetailsDTO customerDetails = new CustomerDetailsDTO();
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);
@@ -168,7 +169,7 @@ public class AccountService {
 
 	private CustomerDetailsDTO customerDetailsFallBack(String traceId, int customerId, Throwable t)
 			throws AccountServiceException {
-		logger.debug("traceId is {} ", traceId);
+		logger.debug("trace-id is {} ", traceId);
 		logger.info("started getting customer account details for customer-id {} via fallback mechanism", customerId);
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
 		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
