@@ -1,6 +1,7 @@
 package com.udemy.gatewayserver.customlfilter;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.context.annotation.Configuration;
@@ -37,6 +38,18 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			String jwt = authorizationHeader.replace("Bearer", "");
 			if (!isJwtValid(jwt)) {
 				return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
+			}
+			if (StringUtils.contains(request.getPath().toString(), "/v1/accounts/")) {
+				exchange.mutate()
+						.request(exchange.getRequest().mutate()
+								.header(HttpHeaders.AUTHORIZATION, "Basic YWNjb3VudDphY2NvdW50QDEyMzQ=").build())
+						.build();
+			} else if (StringUtils.contains(request.getPath().toString(), "/v1/loans/")) {
+				exchange.mutate().request(exchange.getRequest().mutate()
+						.header(HttpHeaders.AUTHORIZATION, "Basic bG9hbjpsb2FuQDEyMzQ=").build()).build();
+			} else if (StringUtils.contains(request.getPath().toString(), "/v1/cards/")) {
+				exchange.mutate().request(exchange.getRequest().mutate()
+						.header(HttpHeaders.AUTHORIZATION, "Basic Y2FyZDpjYXJkQDEyMzQ=").build()).build();
 			}
 			return chain.filter(exchange);
 		};
