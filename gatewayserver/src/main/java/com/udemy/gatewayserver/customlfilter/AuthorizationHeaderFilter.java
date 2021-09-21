@@ -39,18 +39,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 			if (!isJwtValid(jwt)) {
 				return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
 			}
-			if (StringUtils.contains(request.getPath().toString(), "/v1/accounts/")) {
-				exchange.mutate()
-						.request(exchange.getRequest().mutate()
-								.header(HttpHeaders.AUTHORIZATION, "Basic YWNjb3VudDphY2NvdW50QDEyMzQ=").build())
-						.build();
-			} else if (StringUtils.contains(request.getPath().toString(), "/v1/loans/")) {
-				exchange.mutate().request(exchange.getRequest().mutate()
-						.header(HttpHeaders.AUTHORIZATION, "Basic bG9hbjpsb2FuQDEyMzQ=").build()).build();
-			} else if (StringUtils.contains(request.getPath().toString(), "/v1/cards/")) {
-				exchange.mutate().request(exchange.getRequest().mutate()
-						.header(HttpHeaders.AUTHORIZATION, "Basic Y2FyZDpjYXJkQDEyMzQ=").build()).build();
-			}
 			return chain.filter(exchange);
 		};
 	}

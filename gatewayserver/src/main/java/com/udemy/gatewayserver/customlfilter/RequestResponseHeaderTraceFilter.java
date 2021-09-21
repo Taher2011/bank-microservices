@@ -22,7 +22,7 @@ public class RequestResponseHeaderTraceFilter {
 
 	@Order(1)
 	@Bean
-	public GlobalFilter filter() {
+	public GlobalFilter addRequestResponseHeaderTraceId() {
 		return (exchange, chain) -> {
 			HttpHeaders requestHeaders = exchange.getRequest().getHeaders();
 			if (!ObjectUtils.isEmpty(requestHeaders.get(HEADER_TRACEID))) {
