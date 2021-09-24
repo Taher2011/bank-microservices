@@ -13,10 +13,10 @@ public class PropertyHolder {
 
 	public String tokenSubject;
 	
-	public String accountSecurityPassword;
+	public String authorizationHeaderAccount;
 
-	public String loanSecurityPassword;
+	public String authorizationHeaderLoan;
 
-	public String cardSecurityPassword;
+	public String authorizationHeaderCard;
 
 }

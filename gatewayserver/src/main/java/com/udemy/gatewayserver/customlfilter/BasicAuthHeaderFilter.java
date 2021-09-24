@@ -27,16 +27,20 @@ public class BasicAuthHeaderFilter {
 		return (exchange, chain) -> {
 			ServerHttpRequest request = exchange.getRequest();
 			if (StringUtils.contains(request.getPath().toString(), "/v1/accounts/")) {
-				exchange.mutate().request(exchange.getRequest().mutate()
-						.header(HttpHeaders.AUTHORIZATION, BASIC + propertyHolder.getAccountSecurityPassword()).build())
+				exchange.mutate()
+						.request(
+								exchange.getRequest().mutate()
+										.header(HttpHeaders.AUTHORIZATION,
+												BASIC + propertyHolder.getAuthorizationHeaderAccount())
+										.build())
 						.build();
 			} else if (StringUtils.contains(request.getPath().toString(), "/v1/loans/")) {
 				exchange.mutate().request(exchange.getRequest().mutate()
-						.header(HttpHeaders.AUTHORIZATION, BASIC + propertyHolder.getLoanSecurityPassword()).build())
+						.header(HttpHeaders.AUTHORIZATION, BASIC + propertyHolder.getAuthorizationHeaderLoan()).build())
 						.build();
 			} else if (StringUtils.contains(request.getPath().toString(), "/v1/cards/")) {
 				exchange.mutate().request(exchange.getRequest().mutate()
-						.header(HttpHeaders.AUTHORIZATION, BASIC + propertyHolder.getCardSecurityPassword()).build())
+						.header(HttpHeaders.AUTHORIZATION, BASIC + propertyHolder.getAuthorizationHeaderCard()).build())
 						.build();
 			}
 			return chain.filter(exchange);
