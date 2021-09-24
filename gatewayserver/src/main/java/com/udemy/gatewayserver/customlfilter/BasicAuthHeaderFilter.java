@@ -25,7 +25,7 @@ public class BasicAuthHeaderFilter {
 			if (StringUtils.contains(request.getPath().toString(), "/v1/accounts/")) {
 				exchange.mutate()
 						.request(exchange.getRequest().mutate()
-								.header(HttpHeaders.AUTHORIZATION, BASIC + "YWNjb3VudDphY2NvdW50QDEyMzQ").build())
+								.header(HttpHeaders.AUTHORIZATION, BASIC + "YWNjb3VudDphY2NvdW50QDEyMzQ=").build())
 						.build();
 			} else if (StringUtils.contains(request.getPath().toString(), "/v1/loans/")) {
 				exchange.mutate().request(exchange.getRequest().mutate()
