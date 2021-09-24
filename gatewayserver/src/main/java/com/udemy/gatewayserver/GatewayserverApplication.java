@@ -34,6 +34,9 @@ public class GatewayserverApplication {
 		holder.setTokenSecret(environment.getProperty("token.secret"));
 		holder.setTokenExpiration(environment.getProperty("token.expiration"));
 		holder.setTokenSubject(environment.getProperty("token.subject"));
+		holder.setAccountSecurityPassword(environment.getProperty("account.security.password"));
+		holder.setCardSecurityPassword(environment.getProperty("card.security.password"));
+		holder.setLoanSecurityPassword(environment.getProperty("loan.security.password"));
 		return holder;
 	}
 
