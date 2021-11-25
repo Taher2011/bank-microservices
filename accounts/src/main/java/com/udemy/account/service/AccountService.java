@@ -158,7 +158,7 @@ public class AccountService {
 		List<AccountDTO> accountDetails = getAccountsForCustomer(customerId);
 		List<CardDTO> cardDetails = cardsFeignClient.getCardsForCustomer(traceId, customerId);
 		List<LoanDTO> loanDetails = loansFeignClient.getLoansForCustomer(traceId, customerId);
-		
+
 		CustomerDetailsDTO customerDetails = new CustomerDetailsDTO();
 		customerDetails.setAccounts(accountDetails);
 		customerDetails.setLoans(loanDetails);
